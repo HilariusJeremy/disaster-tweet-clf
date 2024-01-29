@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #15202B;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #15202B;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-top: 50px;
+            border: 2px solid #fff; 
+        }
+
+        h1, .model-header, .model-title {
+            color: #fff;
+        }
+
+        .tweet-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            background-color: #15202B; 
+            color: white;
+        }
+
+        .tweet-button {
+            background-color: #1da1f2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 1000;
+        }
+
+        .tweet-button:hover {
+            background-color: rgba(29, 161, 242, 0.75);
+        }
+
+        .tweet-button.dimmed:hover {
+            background-color: #1da1f2;
+        }
+
+        .result-container {
+            margin-top: 20px;
+        }
+
+        .prediction {
+            color: #1da1f2;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .dimmed {
+            opacity: 0.5;
+        }
+
+        .logo-container, .profiles {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 50px;
+        }
+
+        .logo-img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .social-icon {
+            text-align: center;
+            margin: 0 20px;
+        }
+
+        .social-icon img {
+            height: 75px;
+            width: auto;
+        }
+
+    </style>
+
+    <title>Disaster Tweet Prediction</title>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Disaster Tweet Prediction</h1>
+        <textarea class="tweet-input" placeholder="What is happening?!" oninput="checkInput()"></textarea>
+        <button class="tweet-button dimmed" onclick="predictTweet()" id="tweetButton">Post</button>
+        <div class="result-container" id="result-container"></div>
+    </div>
+
+    <div class="logo-container">
+        <h1 class="model-header">Proudly Predicted by</h1>
+        <!-- Replace "huggingface-logo.png" with the path to your Hugging Face logo -->
+        <img src=".\assets\hf-logo.png" alt="Hugging Face Logo" class="logo-img">
+        <h2 class="model-title"><a href="https://huggingface.co/HilariusJeremy/disaster_tweet_distilbert" target="_blank">
+            HilariusJeremy/disaster_tweet_distilbert</a></h2>
+    </div>
+
+    <div class="profiles">
+        <h1 class="profile-header">My Socials</h1>
+        <a href="https://github.com/HilariusJeremy" style="text-decoration: none;" target="_blank" class="social-icon">
+            <img src=".\assets\github-logo.png" alt="GitHub Icon" style="border: none;">
+        </a>
+    
+        <a href="https://www.linkedin.com/in/hilariusjeremy" target="_blank" class="social-icon">
+            <img src=".\assets\linkedin-logo.png" alt="LinkedIn Icon">
+        </a>
+    </div>
+
+    <script>
+
+        function checkInput() {
+            var tweetInput = document.querySelector('.tweet-input');
+            var tweetButton = document.getElementById('tweetButton');
+
+            if (tweetInput.value.trim() === '') {
+                tweetButton.classList.add('dimmed');
+            } else {
+                tweetButton.classList.remove('dimmed');
+            }
+        }
+
+        function predictTweet() {
+            var tweetInput = document.querySelector('.tweet-input').value;
+
+            if (tweetInput.trim() === '') {
+                return;
+            }
+
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({tweet: tweetInput})
+            })
+            .then(response => response.json())
+            .then(result => {
+                displayPrediction(result);
+            })
+            .catch(error => {
+                console.error('Error making prediction:', error);
+                displayError();
+            });
+        }
+
+        function displayPrediction(result) {
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = `<p class="prediction">${result.prediction} (Confidence: ${result.confidence.toFixed(2)})</p>`;
+        }
+
+        function displayError() {
+            var resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = '<p class="prediction">Error making prediction. Please try again.</p>';
+        }
+    </script>
+
+</body>
+</html>

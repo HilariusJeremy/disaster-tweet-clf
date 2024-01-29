@@ -1,0 +1,9 @@
+python==3.8
+pandas
+numpy
+transformers
+scikit-learn
+huggingface-hub
+tqdm
+flask
+flask-cors
